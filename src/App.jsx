@@ -99,7 +99,7 @@ function InputWithTag({ label, value, onChange, tag, error, placeholder }) {
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
-          className="flex-1 px-3 h-full text-sm text-foreground bg-transparent outline-none min-w-0 placeholder:text-[#A0AEC0]"
+          className="flex-1 px-3 h-full text-base text-foreground bg-transparent outline-none min-w-0 placeholder:text-[#A0AEC0]"
         />
         {value.length > 0 && (
           <button
