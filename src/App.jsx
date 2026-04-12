@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { useHistory } from '@/hooks/useHistory'
-import { HistoryDrawer } from '@/components/HistoryDrawer'
 import { HistoryPeek } from '@/components/HistoryPeek'
 
 // ─── Mode config ────────────────────────────────────────────────────────────
@@ -240,7 +239,6 @@ export default function App() {
     pieces: [makeCard()],
   })
   const [newCardId, setNewCardId] = useState(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const { entries, addEntry, deleteEntry, clearAll } = useHistory()
   const cards = cardsByMode[mode]
@@ -298,18 +296,8 @@ export default function App() {
       <div className="w-full max-w-[375px] flex flex-col gap-4">
 
         {/* Navbar */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <h1 className="text-2xl font-bold text-foreground">Cifrijaner</h1>
-          <button
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Open history"
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-[#6B7280] hover:text-foreground hover:bg-[#F0F0F0] transition-colors"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-          </button>
         </div>
 
         <UnitSwitcher mode={mode} onChange={handleModeChange} />
@@ -338,13 +326,6 @@ export default function App() {
       </div>
 
       <HistoryPeek
-        entry={entries[0] ?? null}
-        onSeeAll={() => setDrawerOpen(true)}
-      />
-
-      <HistoryDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
         entries={entries}
         onDelete={deleteEntry}
         onClearAll={clearAll}
