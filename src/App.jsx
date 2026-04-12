@@ -90,7 +90,7 @@ function InputWithTag({ label, value, onChange, tag, error, placeholder }) {
       <label htmlFor={id} className="text-[13px] font-medium text-foreground">
         {label}
       </label>
-      <div className="flex items-center h-11 border border-input rounded-[6px] overflow-hidden bg-white transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_oklch(0.634_0.202_281.2/0.18)]">
+      <div className="flex items-center h-11 border border-input rounded-[6px] overflow-hidden bg-white transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_oklch(0.905_0.180_95/0.35)]">
         <input
           id={id}
           type="text"
@@ -167,7 +167,7 @@ function ProductCard({ card, mode, onUpdate, onRemove, showRemove, isBestDeal, i
         className={[
           'py-0 rounded-xl border-0 shadow-[0_0_0_1px_#E0E0E0,_0_2px_4px_0_rgba(0,0,0,0.07),_0_1px_1.5px_0_rgba(0,0,0,0.05)] transition-colors',
           isBestDeal
-            ? 'border-l-4 !border-l-primary bg-primary/5 shadow-[4px_0_0_0_oklch(0.634_0.202_281.2),_0_0_0_1px_#E0E0E0,_0_2px_4px_0_rgba(0,0,0,0.07)]'
+            ? 'border-l-4 !border-l-primary bg-primary/5 shadow-[4px_0_0_0_oklch(0.905_0.180_95),_0_0_0_1px_#E0E0E0,_0_2px_4px_0_rgba(0,0,0,0.07)]'
             : '',
         ].join(' ')}
       >
