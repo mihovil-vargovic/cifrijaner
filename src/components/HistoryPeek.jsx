@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -75,8 +75,12 @@ function HistoryEntry({ entry, onDelete, onRestore }) {
   )
 }
 
-export function HistoryPeek({ entries, onDelete, onClearAll, onRestore, hasCurrentInput }) {
+export function HistoryPeek({ entries, onDelete, onClearAll, onRestore, hasCurrentInput, triggerOpen = 0 }) {
   const [expanded, setExpanded] = useState(false)
+
+  useEffect(() => {
+    if (triggerOpen > 0) setExpanded(true)
+  }, [triggerOpen])
   const [pendingRestore, setPendingRestore] = useState(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
 
@@ -178,7 +182,7 @@ export function HistoryPeek({ entries, onDelete, onClearAll, onRestore, hasCurre
             )}
 
             {/* ── Collapsed: peek + CTA ── */}
-            {!expanded && (
+            {!expanded && entries.length > 0 && (
               <div className="px-4 pb-4 flex flex-col gap-3">
                 {entry && (
                   <div className="relative overflow-hidden rounded-xl">

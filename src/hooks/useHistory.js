@@ -32,21 +32,17 @@ export function useHistory() {
     const minPrice = Math.min(...cardData.map(c => c.unitPrice))
     const winnerId = cardData.findIndex(c => c.unitPrice === minPrice)
 
-    // Duplicate guard: skip if identical to most recent entry
+    // Duplicate guard: skip if identical to any existing entry
     setEntries(prev => {
-      if (prev.length > 0) {
-        const last = prev[0]
-        if (
-          last.unitType === unitType &&
-          last.cards.length === cardData.length &&
-          last.cards.every((c, i) =>
-            c.price === cardData[i].price &&
-            c.amount === cardData[i].amount
-          )
-        ) {
-          return prev
-        }
-      }
+      const isDuplicate = prev.some(e =>
+        e.unitType === unitType &&
+        e.cards.length === cardData.length &&
+        e.cards.every((c, i) =>
+          c.price === cardData[i].price &&
+          c.amount === cardData[i].amount
+        )
+      )
+      if (isDuplicate) return prev
 
       const entry = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,

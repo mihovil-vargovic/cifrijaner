@@ -147,8 +147,9 @@ function UnitSwitcher({ mode, onChange }) {
   )
 }
 
-function ProductCard({ card, mode, onUpdate, onRemove, showRemove, isBestDeal, isNew }) {
+function ProductCard({ card, mode, onUpdate, onRemove, onReset, showRemove, isBestDeal, isNew }) {
   const cfg = MODES[mode]
+  const hasInput = card.price !== '' || card.amount !== '' || card.result !== null
 
   function handleCalculate() {
     const errors = validateCard(card.price, card.amount)
@@ -171,7 +172,7 @@ function ProductCard({ card, mode, onUpdate, onRemove, showRemove, isBestDeal, i
         ].join(' ')}
       >
         <CardContent className="p-4 flex flex-col gap-4">
-          {(isBestDeal || showRemove) && (
+          {(isBestDeal || showRemove || hasInput) && (
             <div className="flex items-center justify-between -mb-1">
               <div>
                 {isBestDeal && (
@@ -180,15 +181,29 @@ function ProductCard({ card, mode, onUpdate, onRemove, showRemove, isBestDeal, i
                   </Badge>
                 )}
               </div>
-              {showRemove && (
-                <button
-                  onClick={onRemove}
-                  aria-label="Remove product"
-                  className="text-[#A0AEC0] hover:text-foreground transition-colors text-lg leading-none w-6 h-6 flex items-center justify-center rounded"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              )}
+              <div className="flex items-center gap-1">
+                {hasInput && (
+                  <button
+                    onClick={onReset}
+                    aria-label="Reset card"
+                    className="text-[#A0AEC0] hover:text-foreground transition-colors w-6 h-6 flex items-center justify-center rounded"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                      <path d="M3 3v5h5" />
+                    </svg>
+                  </button>
+                )}
+                {showRemove && (
+                  <button
+                    onClick={onRemove}
+                    aria-label="Remove product"
+                    className="text-[#A0AEC0] hover:text-foreground transition-colors text-lg leading-none w-6 h-6 flex items-center justify-center rounded"
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -239,6 +254,8 @@ export default function App() {
     pieces: [makeCard()],
   })
   const [newCardId, setNewCardId] = useState(null)
+  const [hasCalculated, setHasCalculated] = useState(false)
+  const [historyOpenTrigger, setHistoryOpenTrigger] = useState(0)
 
   const { entries, addEntry, deleteEntry, clearAll } = useHistory()
   const cards = cardsByMode[mode]
@@ -261,6 +278,7 @@ export default function App() {
     const next = cards.map(c => c.id === updated.id ? updated : c)
     setCards(next)
     if (updated.result !== null) {
+        setHasCalculated(true)
       const validCount = next.filter(c => c.result !== null).length
       if (validCount >= 2) {
         addEntry(mode, next)
@@ -270,6 +288,14 @@ export default function App() {
 
   function removeCard(id) {
     setCards(prev => prev.filter(c => c.id !== id))
+  }
+
+  function resetCard(id) {
+    setCards(prev => prev.map(c => c.id === id ? { ...c, price: '', amount: '', result: null, errors: {} } : c))
+  }
+
+  function clearAllCards() {
+    setCards(prev => prev.map(c => ({ ...c, price: '', amount: '', result: null, errors: {} })))
   }
 
   function addCard() {
@@ -289,6 +315,7 @@ export default function App() {
     }))
     setMode(entry.unitType)
     setCardsByMode(prev => ({ ...prev, [entry.unitType]: restored }))
+    setNewCardId(null)
   }
 
   return (
@@ -296,8 +323,28 @@ export default function App() {
       <div className="w-full max-w-[375px] flex flex-col gap-4">
 
         {/* Navbar */}
-        <div className="flex items-center">
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">Cifrijaner</h1>
+          <div className="flex items-center gap-3">
+            {hasAnyInput && (
+              <button
+                onClick={clearAllCards}
+                className="text-sm text-[#6B7280] hover:text-foreground transition-colors"
+              >
+                Clear all
+              </button>
+            )}
+            <button
+              onClick={() => { setHasCalculated(true); setHistoryOpenTrigger(n => n + 1) }}
+              aria-label="View history"
+              className="text-[#6B7280] hover:text-foreground transition-colors w-8 h-8 flex items-center justify-center rounded"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <UnitSwitcher mode={mode} onChange={handleModeChange} />
@@ -309,6 +356,7 @@ export default function App() {
             mode={mode}
             onUpdate={updateCard}
             onRemove={() => removeCard(card.id)}
+            onReset={() => resetCard(card.id)}
             showRemove={cards.length > 1}
             isBestDeal={bestDealIds.has(card.id)}
             isNew={card.id === newCardId}
@@ -325,13 +373,16 @@ export default function App() {
         )}
       </div>
 
-      <HistoryPeek
-        entries={entries}
-        onDelete={deleteEntry}
-        onClearAll={clearAll}
-        onRestore={handleRestore}
-        hasCurrentInput={hasAnyInput}
-      />
+      {hasCalculated && (
+        <HistoryPeek
+          entries={entries}
+          onDelete={deleteEntry}
+          onClearAll={clearAll}
+          onRestore={handleRestore}
+          hasCurrentInput={hasAnyInput}
+          triggerOpen={historyOpenTrigger}
+        />
+      )}
     </div>
   )
 }
